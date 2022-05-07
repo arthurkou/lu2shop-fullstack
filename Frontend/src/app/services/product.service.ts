@@ -9,21 +9,12 @@ import { ProductCategory } from '../common/product-category';
   providedIn: 'root'
 })
 
-export class ProductService { 
+export class ProductService {  
 
   private baseUrl = 'http://localhost:8090/api/products';
-  private categoryUrl = 'http://localhost:8090/api/product-category'
+  private categoryUrl = 'http://localhost:8090/api/product-category';
 
   constructor(private httpClient: HttpClient) { }
-
-  getProductList(theCategoryId: number): Observable<Product[]> {
-
-    const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`;
-
-    return this.httpClient.get<GetResponseProducts>(searchUrl).pipe(
-      map(response => response._embedded.products)
-    );
-  }
 
   getProductCategories(): Observable<ProductCategory[]> {
     
@@ -32,6 +23,27 @@ export class ProductService {
     );
   }
 
+  getProductList(theCategoryId: number): Observable<Product[]> {
+
+    const productByCategoryUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`;
+
+    return this.getProducts(productByCategoryUrl);
+  }
+
+  searchProducts(theKeyword: string): Observable<Product[]> {
+
+    const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyword}`;
+    
+    return this.getProducts(searchUrl);
+  } 
+
+  private getProducts(serviceUrl: string): Observable<Product[]> {
+
+    return this.httpClient.get<GetResponseProducts>(serviceUrl).pipe(
+      map(response => response._embedded.products)
+    );
+  }
+  
 }
 
 interface GetResponseProducts {
